@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three Tools, Not One — tackworks.net</title>
+<meta name="description" content="Why Tackworks ships three single-file services instead of one monolith.">
+<meta property="og:title" content="Three Tools, Not One — tackworks.net">
+<meta property="og:description" content="Why Tackworks ships three single-file services instead of one monolith.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://tackworks.net/blog/three-tools-not-one.html">
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-dim: #8b949e; --accent: #53c9b1;
+    --font: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 640px; margin: 0 auto; padding: 60px 24px; }
+  .breadcrumb { font-size: 12px; color: var(--text-dim); margin-bottom: 32px; }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
+  h1 { font-size: 24px; color: var(--text); margin-bottom: 8px; line-height: 1.3; }
+  .date { font-size: 12px; color: var(--text-dim); margin-bottom: 32px; display: block; }
+  h2 { font-size: 16px; color: var(--accent); margin: 28px 0 12px 0; }
+  p { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; line-height: 1.8; }
+  strong { color: var(--text); }
+  code { color: var(--accent); font-size: 13px; }
+  pre { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin: 12px 0 20px 0; overflow-x: auto; font-size: 13px; }
+  pre code { color: var(--text); }
+  blockquote { border-left: 2px solid var(--accent); padding-left: 16px; margin: 16px 0; font-style: italic; }
+  blockquote p { color: var(--text); font-size: 13px; }
+  .footer { border-top: 1px solid var(--border); padding-top: 24px; margin-top: 48px; font-size: 11px; color: var(--text-dim); display: flex; justify-content: space-between; }
+  .footer a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 600px) { .container { padding: 40px 16px; } h1 { font-size: 20px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb"><a href="/">tackworks.net</a> / <a href="/blog/">blog</a></div>
+  <h1>Three Tools, Not One</h1>
+  <span class="date">April 2026</span>
+
+  <p>
+    Tackworks ships three products: <strong>Tack</strong> (task board), <strong>Chock</strong>
+    (approval queue), and <strong>Spur</strong> (event relay). Each is a single Python file
+    with a SQLite backend. They work together or alone. This is a deliberate choice.
+  </p>
+
+  <h2>The monolith temptation</h2>
+  <p>
+    The natural instinct is to build one tool that does everything. A task board with
+    built-in approvals and built-in notifications. One database, one deployment, one API.
+    Simpler to explain, simpler to sell.
+  </p>
+  <p>
+    But that instinct is wrong for this domain.
+  </p>
+
+  <h2>AI agents are composable. Their tools should be too.</h2>
+  <p>
+    Most agent systems already have some notion of task tracking. Some already have approval
+    workflows. Many have their own notification pipelines. When you build a monolith,
+    you force people to adopt your whole worldview or nothing.
+  </p>
+  <p>
+    With three separate tools, you can drop in just what you need. Already have a task
+    board? Just use Chock for approvals. Already handling notifications? Just use Tack for
+    the board. Need to route events from three different services to Telegram? Just run Spur.
+  </p>
+
+  <h2>Single-file services are the right unit</h2>
+  <p>
+    Each Tackworks service is one <code>server.py</code> file. Not a framework. Not a library.
+    Not a package with 47 dependencies. One file you can read top to bottom in 20 minutes,
+    understand completely, and modify without fear.
+  </p>
+  <p>
+    This matters for AI agents especially. When an agent needs to understand a tool, you
+    feed it the API spec. When a human needs to debug the tool, they read one file. When
+    someone needs to fork and customize, they copy one file.
+  </p>
+
+  <h2>The glue is HTTP</h2>
+  <p>
+    Tack and Chock send webhook events. Spur receives them, matches routes, and forwards
+    to destinations. The glue between the three services is plain HTTP — no message broker,
+    no shared database, no service mesh.
+  </p>
+  <pre><code>Tack --webhook--> Spur --route--> Telegram
+Chock --webhook--> Spur --route--> Slack
+Any source ------> Spur --route--> Any destination</code></pre>
+  <p>
+    If Spur goes down, Tack and Chock keep working. They just don't send notifications.
+    If Tack goes down, Chock and Spur keep working. Each failure is isolated. Each service
+    can be replaced.
+  </p>
+
+  <h2>The Docker Compose bridge</h2>
+  <p>
+    For people who want the full stack, there's a single
+    <code>docker-compose.stack.yml</code> that runs all three wired together.
+    One command, three services, zero configuration beyond setting your notification
+    credentials. You get the benefits of composition without the hassle of manual wiring.
+  </p>
+
+  <h2>The principle</h2>
+  <blockquote>
+    <p>Build tools that do one thing well. Connect them with the simplest possible interface.
+    Let people compose what they need.</p>
+  </blockquote>
+  <p>
+    This is Unix philosophy applied to AI infrastructure. It's not a new idea. It's an
+    old idea that the AI tooling ecosystem has mostly forgotten in its rush to build
+    platforms.
+  </p>
+  <p>
+    Tackworks builds tools, not platforms.
+  </p>
+
+  <div class="footer">
+    <span><a href="/">tackworks.net</a></span>
+    <span><a href="https://github.com/tackworks">github</a> &middot; <a href="mailto:tackworks@proton.me">contact</a></span>
+  </div>
+</div>
+</body>
+</html>
