@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparison — tackworks.net</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta name="description" content="How Tackworks compares to existing tools for AI agent coordination.">
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --text-dim: #8b949e; --accent: #53c9b1;
+    --accent-dim: rgba(83, 201, 177, 0.15);
+    --font: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 800px; margin: 0 auto; padding: 60px 24px; }
+  .breadcrumb { font-size: 12px; color: var(--text-dim); margin-bottom: 40px; }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
+  h1 { font-size: 28px; color: var(--accent); margin-bottom: 8px; }
+  .subtitle { font-size: 14px; color: var(--text-dim); margin-bottom: 32px; }
+  h2 { font-size: 16px; color: var(--text); margin: 32px 0 16px 0; }
+  p { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; line-height: 1.7; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px 0; font-size: 12px; }
+  th { text-align: left; color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; padding: 10px 12px; border-bottom: 2px solid var(--accent); background: var(--surface); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); vertical-align: top; }
+  tr:hover td { background: rgba(83, 201, 177, 0.03); }
+  .yes { color: #38b764; }
+  .no { color: #e05252; }
+  .partial { color: #e8a838; }
+  .section { margin-bottom: 40px; }
+  .note { background: var(--accent-dim); border-left: 3px solid var(--accent); padding: 12px 16px; margin: 16px 0; font-size: 12px; border-radius: 0 6px 6px 0; }
+  .footer { border-top: 1px solid var(--border); padding-top: 24px; margin-top: 48px; font-size: 11px; color: var(--text-dim); display: flex; justify-content: space-between; }
+  .footer a { color: var(--accent); text-decoration: none; }
+  @media (max-width: 600px) { .container { padding: 40px 16px; } h1 { font-size: 22px; } table { font-size: 11px; } th, td { padding: 8px 6px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb"><a href="/">tackworks.net</a> / docs / comparison</div>
+  <h1>How Tackworks Compares</h1>
+  <p class="subtitle">Honest comparison with existing tools. Every tool has trade-offs.</p>
+
+  <div class="section">
+    <h2>Task Coordination (Tack vs alternatives)</h2>
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Tack</th>
+        <th>Trello/Jira</th>
+        <th>Linear</th>
+        <th>Custom DB</th>
+      </tr>
+      <tr>
+        <td>Agent-first REST API</td>
+        <td class="yes">Yes</td>
+        <td class="partial">API exists, not agent-optimized</td>
+        <td class="partial">GraphQL, complex</td>
+        <td class="yes">Whatever you build</td>
+      </tr>
+      <tr>
+        <td>Sparse-field reads (save tokens)</td>
+        <td class="yes">?fields=id,title</td>
+        <td class="no">No</td>
+        <td class="partial">GraphQL fields</td>
+        <td class="partial">Manual</td>
+      </tr>
+      <tr>
+        <td>Atomic claiming (prevent duplicate work)</td>
+        <td class="yes">TTL-based, 409 on conflict</td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+        <td class="partial">Manual</td>
+      </tr>
+      <tr>
+        <td>Structured decisions (not comments)</td>
+        <td class="yes">Options with buttons</td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+        <td class="partial">Manual</td>
+      </tr>
+      <tr>
+        <td>Self-hosted</td>
+        <td class="yes">SQLite, one file</td>
+        <td class="no">Cloud only</td>
+        <td class="no">Cloud only</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>No vendor lock-in</td>
+        <td class="yes">MIT, fork freely</td>
+        <td class="no">Proprietary</td>
+        <td class="no">Proprietary</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Setup time</td>
+        <td class="yes">30 seconds</td>
+        <td class="partial">Account + config</td>
+        <td class="partial">Account + config</td>
+        <td class="no">Hours to weeks</td>
+      </tr>
+    </table>
+    <p>Tack is not a replacement for Jira. If you need enterprise project management, use enterprise tools. Tack is for agent teams that need lightweight coordination without SaaS dependencies.</p>
+  </div>
+
+  <div class="section">
+    <h2>Approval Workflows (Chock vs alternatives)</h2>
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Chock</th>
+        <th>HumanLayer</th>
+        <th>LangGraph HITL</th>
+        <th>Custom webhook</th>
+      </tr>
+      <tr>
+        <td>Standalone service</td>
+        <td class="yes">Yes</td>
+        <td class="no">SDK required</td>
+        <td class="no">Framework-coupled</td>
+        <td class="partial">Manual</td>
+      </tr>
+      <tr>
+        <td>Contingent approvals (structured conditions)</td>
+        <td class="yes">Schema-based</td>
+        <td class="no">Yes/No only</td>
+        <td class="no">Yes/No only</td>
+        <td class="partial">Manual</td>
+      </tr>
+      <tr>
+        <td>Model-agnostic</td>
+        <td class="yes">Pure HTTP</td>
+        <td class="partial">Python SDK</td>
+        <td class="no">LangChain only</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Web UI for reviewers</td>
+        <td class="yes">Built-in</td>
+        <td class="partial">Slack/email</td>
+        <td class="no">No</td>
+        <td class="no">No</td>
+      </tr>
+      <tr>
+        <td>Self-hosted</td>
+        <td class="yes">One file</td>
+        <td class="no">Cloud</td>
+        <td class="yes">Yes</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Callback support</td>
+        <td class="yes">POST on decision</td>
+        <td class="no">Polling</td>
+        <td class="partial">State graph</td>
+        <td class="partial">Manual</td>
+      </tr>
+    </table>
+    <p>Chock's key differentiator is contingent approvals. Not just yes/no — approve with structured conditions that agents can parse and act on.</p>
+  </div>
+
+  <div class="section">
+    <h2>Event Routing (Spur vs alternatives)</h2>
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Spur</th>
+        <th>Hookdeck</th>
+        <th>n8n</th>
+        <th>Custom script</th>
+      </tr>
+      <tr>
+        <td>Single-file deployment</td>
+        <td class="yes">Yes</td>
+        <td class="no">Cloud</td>
+        <td class="no">Platform</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Template engine</td>
+        <td class="yes">{field.subfield}</td>
+        <td class="no">Transform rules</td>
+        <td class="yes">Nodes</td>
+        <td class="partial">Manual</td>
+      </tr>
+      <tr>
+        <td>Multi-destination (Telegram/Slack/Discord/HTTP)</td>
+        <td class="yes">4 built-in</td>
+        <td class="partial">HTTP only</td>
+        <td class="yes">Many integrations</td>
+        <td class="partial">Per-script</td>
+      </tr>
+      <tr>
+        <td>Event replay</td>
+        <td class="yes">Single + bulk</td>
+        <td class="yes">Yes</td>
+        <td class="partial">Manual</td>
+        <td class="no">No</td>
+      </tr>
+      <tr>
+        <td>Self-hosted, no dependencies</td>
+        <td class="yes">SQLite</td>
+        <td class="no">Cloud</td>
+        <td class="partial">Docker + Postgres</td>
+        <td class="yes">Yes</td>
+      </tr>
+      <tr>
+        <td>Setup time</td>
+        <td class="yes">30 seconds</td>
+        <td class="partial">Account setup</td>
+        <td class="partial">Docker + config</td>
+        <td class="no">Hours</td>
+      </tr>
+    </table>
+    <p>Spur is not a replacement for n8n or Zapier. If you need complex multi-step automations, use those. Spur is for routing agent events to where your humans are.</p>
+  </div>
+
+  <div class="note">
+    These comparisons are honest. Every tool has its place. Tackworks fills a specific gap: lightweight, self-hosted coordination tools designed for AI agent teams. If you need enterprise features, use enterprise tools.
+  </div>
+
+  <div class="footer">
+    <span><a href="/">tackworks.net</a></span>
+    <span><a href="https://github.com/tackworks">github</a> &middot; <a href="mailto:tackworks@proton.me">contact</a></span>
+  </div>
+</div>
+</body>
+</html>
