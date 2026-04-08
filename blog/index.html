@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing — tackworks.net</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #53c9b1;
+    --font: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 680px; margin: 0 auto; padding: 60px 24px; }
+  .back { font-size: 12px; color: var(--text-dim); text-decoration: none; display: inline-block; margin-bottom: 32px; }
+  .back:hover { color: var(--accent); }
+  h1 { font-size: 24px; font-weight: 700; color: var(--accent); margin-bottom: 32px; }
+  .post-link {
+    display: block; padding: 16px 20px; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; margin-bottom: 12px; text-decoration: none; color: inherit; transition: border-color 0.2s;
+  }
+  .post-link:hover { border-color: var(--accent); }
+  .post-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .post-date { font-size: 11px; color: var(--text-dim); }
+  .post-desc { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="/" class="back">&larr; tackworks.net</a>
+  <h1>Writing</h1>
+
+  <a href="/blog/why-i-built-a-task-board-for-ai-agents.html" class="post-link">
+    <div class="post-title">Why I Built a Task Board for AI Agents</div>
+    <div class="post-date">April 8, 2026</div>
+    <div class="post-desc">The tools we build for human teams don't work for AI agents. Here's why I built new ones.</div>
+  </a>
+
+</div>
+</body>
+</html>
