@@ -1,0 +1,51 @@
+# Tackworks Full Stack
+# Run all three services together with one command.
+#
+# Usage:
+#   git clone https://github.com/Tackworks/tack.git
+#   git clone https://github.com/Tackworks/chock.git
+#   git clone https://github.com/Tackworks/spur.git
+#   docker compose -f docker-compose.stack.yml up -d
+#
+# Then:
+#   Tack board:      http://localhost:8795
+#   Chock approvals: http://localhost:8796
+#   Spur relay:      http://localhost:8797
+
+services:
+  tack:
+    build: ../tack
+    ports:
+      - "8795:8795"
+    volumes:
+      - tack-data:/data
+    environment:
+      - TACK_HOST=0.0.0.0
+      - TACK_WEBHOOKS=http://spur:8797/api/events
+    restart: unless-stopped
+
+  chock:
+    build: ../chock
+    ports:
+      - "8796:8796"
+    volumes:
+      - chock-data:/data
+    environment:
+      - CHOCK_HOST=0.0.0.0
+      - CHOCK_WEBHOOKS=http://spur:8797/api/events
+    restart: unless-stopped
+
+  spur:
+    build: ../spur
+    ports:
+      - "8797:8797"
+    volumes:
+      - spur-data:/data
+    environment:
+      - SPUR_HOST=0.0.0.0
+    restart: unless-stopped
+
+volumes:
+  tack-data:
+  chock-data:
+  spur-data:
