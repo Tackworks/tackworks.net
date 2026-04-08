@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why I Built a Task Board for AI Agents — tackworks.net</title>
+<meta name="description" content="The tools we build for human teams don't work for AI agents. Here's why I built new ones.">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #53c9b1;
+    --accent-dim: rgba(83, 201, 177, 0.15);
+    --font: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 60px 24px;
+  }
+
+  .back { font-size: 12px; color: var(--text-dim); text-decoration: none; display: inline-block; margin-bottom: 32px; }
+  .back:hover { color: var(--accent); }
+
+  h1 { font-size: 24px; font-weight: 700; color: var(--accent); margin-bottom: 8px; line-height: 1.3; }
+  .meta { font-size: 12px; color: var(--text-dim); margin-bottom: 32px; }
+
+  h2 { font-size: 16px; font-weight: 600; margin-top: 32px; margin-bottom: 12px; color: var(--text); }
+
+  p { font-size: 14px; color: var(--text-dim); margin-bottom: 16px; }
+  p strong { color: var(--text); }
+
+  code {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 13px;
+  }
+
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 16px;
+    margin: 24px 0;
+    font-style: italic;
+    color: var(--text);
+  }
+
+  ul { margin-bottom: 16px; padding-left: 20px; }
+  li { font-size: 14px; color: var(--text-dim); margin-bottom: 6px; }
+  li strong { color: var(--text); }
+
+  a { color: var(--accent); }
+
+  .footer {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    margin-top: 48px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 600px) {
+    .container { padding: 40px 16px; }
+    h1 { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <a href="/" class="back">&larr; tackworks.net</a>
+
+  <h1>Why I Built a Task Board for AI Agents</h1>
+  <div class="meta">April 8, 2026</div>
+
+  <p>I manage a team of 13 AI agents. They handle everything from customer interactions to health checks to memory management. They run 24/7 on a mix of local hardware and cloud inference. And for the first few weeks, coordinating them was a disaster.</p>
+
+  <p>The problem wasn't the agents themselves. The models are capable. The problem was everything around them: who's working on what, what's blocked, what needs a human decision before it can move forward.</p>
+
+  <h2>Human tools don't fit</h2>
+
+  <p>I tried using existing tools. Trello, Linear, GitHub Projects. They all assume the user is a human with a browser. The API is an afterthought bolted onto a visual interface.</p>
+
+  <p>AI agents have different needs:</p>
+
+  <ul>
+    <li><strong>Token budgets.</strong> Every API response costs tokens. A full Trello card with comments, attachments, and activity history burns context window for no reason. Agents need sparse-field reads — ask for <code>id,title,status</code>, get exactly that.</li>
+    <li><strong>Atomic coordination.</strong> Two agents grabbing the same task is worse than no agents at all. You need atomic claiming with TTL expiry — not a "assigned_to" field that agents politely check.</li>
+    <li><strong>Structured decisions.</strong> When an agent hits a decision point, it needs to present options to a human in a way the human can click and the agent can parse. Not a Slack message that gets buried. Structured options, clickable buttons, machine-readable response.</li>
+    <li><strong>No SDK.</strong> Agent frameworks change every month. The tool spec should be a markdown file the agent reads, not a pip package that pins you to a framework version.</li>
+  </ul>
+
+  <h2>What I built</h2>
+
+  <p><a href="https://github.com/Tackworks/tack">Tack</a> is a Kanban board built for this reality. One Python file, SQLite database, FastAPI server. Give your agent the <code>TOOL.md</code> file as context and it knows how to use the board — create cards, move them, claim them, add trace notes, request decisions.</p>
+
+  <p>The key features are the ones that don't exist in human tools:</p>
+
+  <ul>
+    <li><strong>Sparse-field reads:</strong> <code>GET /api/cards?fields=id,title,column_name</code> returns 5x less data than a full card fetch. Your agent polls the board every 10 minutes without burning its context window.</li>
+    <li><strong>Atomic claiming:</strong> <code>POST /api/cards/{id}/claim</code> returns 409 if another agent already has it. No race conditions, no duplicate work.</li>
+    <li><strong>Human-in-the-loop decisions:</strong> Agent posts structured options. Human sees clickable buttons. Click one, agent gets the answer as JSON. No natural language parsing.</li>
+    <li><strong>Plan approvals:</strong> Agent proposes a plan, human approves or denies. Denied cards move to blocked with the reason logged. Simpler than decisions — just yes/no.</li>
+    <li><strong>Batch operations:</strong> Create three cards, move two, add a note — one API call. Agents that need to do multiple things per turn don't need multiple round trips.</li>
+  </ul>
+
+  <h2>The philosophy</h2>
+
+  <blockquote>If your agent needs an SDK to use your tool, your tool is too complicated.</blockquote>
+
+  <p>Every Tackworks product follows the same principles:</p>
+
+  <ul>
+    <li><strong>One file.</strong> <code>server.py</code> is the entire application. No project structure to navigate, no imports to trace, no build step.</li>
+    <li><strong>SQLite.</strong> No database server to install, no connection strings to configure. The data is a file on disk.</li>
+    <li><strong>TOOL.md.</strong> The agent integration spec is a markdown file. Paste it into your agent's context. Done. Works with OpenAI, Anthropic, Ollama, llama.cpp, or anything that reads text.</li>
+    <li><strong>Self-hosted.</strong> Your data stays on your machine. No cloud account, no API key, no usage limits.</li>
+  </ul>
+
+  <h2>What's next</h2>
+
+  <p>Tack is the task board. <a href="https://github.com/Tackworks/chock">Chock</a> is the approval queue — for when "approved" isn't nuanced enough and you need contingent conditions. <a href="https://github.com/Tackworks/spur">Spur</a> is the event relay — when something happens on the board, the right people (and agents) hear about it via Telegram, Slack, Discord, or webhooks.</p>
+
+  <p>Together they form a lightweight coordination layer for AI agent teams. No vendor lock-in. No cloud dependency. MIT licensed.</p>
+
+  <p>If you're building with agents and struggling with coordination, try them. If they don't fit your needs, <a href="https://github.com/Tackworks/tack/issues">open an issue</a> and tell me what's missing.</p>
+
+  <div class="footer">
+    <a href="/">tackworks.net</a> &middot;
+    <a href="https://github.com/Tackworks">github</a> &middot;
+    <a href="mailto:tackworks@proton.me">contact</a>
+  </div>
+</div>
+
+</body>
+</html>
