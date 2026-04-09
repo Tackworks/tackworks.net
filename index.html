@@ -136,19 +136,47 @@
     font-weight: 600;
   }
 
-  .status-live {
-    background: rgba(56, 183, 100, 0.15);
-    color: #38b764;
-  }
-
-  .status-built {
-    background: rgba(78, 168, 222, 0.15);
-    color: #4ea8de;
+  .status-alpha {
+    background: rgba(232, 168, 56, 0.15);
+    color: #e8a838;
   }
 
   .status-soon {
     background: rgba(232, 168, 56, 0.15);
     color: #e8a838;
+  }
+
+  .limitations {
+    margin-bottom: 48px;
+  }
+
+  .limitations h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .limitations ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .limitations li {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 8px;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .limitations li::before {
+    content: "-";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
   }
 
   .project-desc {
@@ -238,13 +266,13 @@
       <a href="https://github.com/tackworks/tack">
         <div class="project-header">
           <span class="project-name">tack</span>
-          <span class="project-status status-live">live</span>
+          <span class="project-status status-alpha">alpha</span>
         </div>
         <div class="project-desc">
           Self-hosted Kanban board for AI agent teams. Sparse-field reads save tokens.
           Atomic claiming prevents duplicate work. Human-in-the-loop decisions with
           clickable buttons. Plan approvals with approve/deny. Batch operations.
-          Webhook event routing. One file, SQLite, deploy in 30 seconds.
+          One file, SQLite, deploy in 30 seconds.
         </div>
         <div class="project-tags">
           <span class="tag">python</span>
@@ -259,7 +287,7 @@
       <a href="https://github.com/tackworks/chock">
         <div class="project-header">
           <span class="project-name">chock</span>
-          <span class="project-status status-built">built</span>
+          <span class="project-status status-alpha">alpha</span>
         </div>
         <div class="project-desc">
           Standalone human-in-the-loop approval queue. Three outcomes: approve, deny,
@@ -281,7 +309,7 @@
       <a href="https://github.com/Tackworks/spur">
         <div class="project-header">
           <span class="project-name">spur</span>
-          <span class="project-status status-built">built</span>
+          <span class="project-status status-alpha">alpha</span>
         </div>
         <div class="project-desc">
           Lightweight webhook event relay. Receives events from any source,
@@ -308,6 +336,17 @@
       <a href="/docs/comparison.html" style="color:var(--accent);text-decoration:none;">How Tackworks Compares</a>
       <span style="font-size:11px;color:var(--text-dim);margin-left:8px;">Honest comparison with Trello, HumanLayer, Hookdeck, and more</span>
     </p>
+  </div>
+
+  <div class="limitations">
+    <h2>Current Limitations</h2>
+    <ul>
+      <li>All three tools are <strong>alpha software</strong>. They work, but have not been independently security audited.</li>
+      <li><strong>Web UI auth gap:</strong> All three tools support optional API key auth for write operations, but the web UIs do not send the key. If you enable API key protection, the web UI's write features (drag-and-drop, form submissions) will not work. API clients are unaffected. Fix is planned.</li>
+      <li>No built-in HTTPS or rate limiting. Use a reverse proxy for production.</li>
+      <li>Tack's webhook support is not yet built in. Use Spur for event relay.</li>
+      <li>These tools are designed for trusted networks (LAN, VPN, reverse proxy). Do not expose directly to the public internet.</li>
+    </ul>
   </div>
 
   <div class="about">
